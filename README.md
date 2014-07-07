@@ -1,6 +1,7 @@
 prebotc-graph-model
 ===================
 
+Josh's version.
 A model of the pre-Botzinger complex, implementing multiple neuron types and arbitrary network structure.
 
 subdirectories
