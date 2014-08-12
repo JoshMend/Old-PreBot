@@ -62,6 +62,7 @@ def main(argv=None):
     graph = er_prebot(n, p, pTypes, pI, gE, gI)
     nx.write_gml(graph, args.output)
 
+
 # run the main stuff
 if __name__ == '__main__':
     status = main()

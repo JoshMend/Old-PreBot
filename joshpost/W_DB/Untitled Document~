@@ -1,0 +1,12 @@
+c = .9
+                sigma = .58
+                d = math.fabs(e[0] - e[1])/n
+                p = c*math.exp(-d**2/sigma**2)
+	    else:	
+		p = 0	
+        if u['inh'] == 0:
+            if u['respir_area'] == v['respir_area']:
+                c = .9
+                sigma = .024
+                d = math.fabs(e[0] - e[1])/n #maybe 2n
+                p = c*math.exp(-d**2/sigma**2)
