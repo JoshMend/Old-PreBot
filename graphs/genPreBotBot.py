@@ -17,5 +17,6 @@ gE = 2.5
 gI = 2.5
 pTypes = [0, 0.25, 0.45, 0.3]
 
+
 g = respirnet.er_prebot_bot(n, pMatI, pMatE, pTypes, pI, gE, gI)
-nx.write_gml(g, 'block.gml')
+nx.write_gml(g, 'blockran.gml')

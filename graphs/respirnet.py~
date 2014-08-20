@@ -67,8 +67,8 @@ def dist_prebot(n, pTypes, pI, gE, gI):
     assert isinstance(n, int),'n must be an integer'
     assert sum(pTypes) == 1, 'pTypes must add up to 1'
     assert 0 <= pI and pI <= 1
-    c =  .7
-    sigma = .1
+    c =  .9
+    sigma = .02
     graph = nx.empty_graph(n)
     graph = nx.DiGraph(graph)
     nx.set_node_attributes(graph, 'type', 
@@ -132,7 +132,7 @@ def dist_block_prebot(n, pTypes, pI, gE, gI):
         if u['inh'] == 1:
             if u['respir_area'] != v['respir_area']:
                 c = .9
-                sigma = .57
+                sigma = .58
                 d = math.fabs(e[0] - e[1])/n
                 p = c*math.exp(-d**2/sigma**2)
 	    else:	
@@ -140,7 +140,7 @@ def dist_block_prebot(n, pTypes, pI, gE, gI):
         if u['inh'] == 0:
             if u['respir_area'] == v['respir_area']:
                 c = .9
-                sigma = .025
+                sigma = .024
                 d = math.fabs(e[0] - e[1])/n #maybe 2n
                 p = c*math.exp(-d**2/sigma**2)
 	    else:
@@ -211,7 +211,7 @@ def er_prebot_bot(n, p_mat_I, p_mat_E, pTypes, pI, gE, gI):
         area2 = v['respir_area']
         if u['inh'] == 1:
             # inhibitory projection
-            p = p_mat_I[ area1, area2 ]
+            p = random.random()
         elif u['inh'] == 0:
             # excitatory
             p = p_mat_E[ area1, area2 ]

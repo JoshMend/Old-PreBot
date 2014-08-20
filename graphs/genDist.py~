@@ -5,7 +5,7 @@ from respirnet import dist_prebot
 
 
 n = 80
-pI = .2
+pI = .3
 gE= 2.5
 gI = 2.5
 pTypes = [0,0.25,.45,.3]

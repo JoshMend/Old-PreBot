@@ -423,6 +423,9 @@ def main(argv = None):
                                                                   dt*bin_width, 
                                                                   f_sigma, 
                                                                   butter_freq)
+
+
+    ###############################################Dont need 
     psth_bin = np.sum(spike_mat_bin, axis=0)
     ## synchrony measures
     if are_volts:
@@ -434,7 +437,14 @@ def main(argv = None):
     (duty_cycle, ibi_mean, ibi_cv, burst_length_mean, burst_length_cv, ibi_vec,
      burst_lengths, burst_start_locs, burst_peak_locs, burst_peaks, bursting, 
      bad_bursts) = burst_stats(butter_int_bin, cutoff, dt*bin_width)
+#############################################################################
+    
+
+    #Burst Peaks need 
     pop_burst_peak = scipy.signal.argrelmax(butter_int_bin, order=maxorder)[0]
+
+
+
     # plt.plot(bins, butter_int_bin)
     # plt.plot(bins[which_bins_max], butter_int_bin[which_bins_max], 'r*')
     # eta = event_trig_avg(pop_burst_peak, spike_mat_bin)

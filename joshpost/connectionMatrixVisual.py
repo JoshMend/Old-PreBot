@@ -22,8 +22,6 @@ def parse_args(argv):
     return args.input, args.output, args.inh, args.excit 
 
 def main(argv=None):
-    edges_x = []
-    edges_y = []
     inh_x = []
     inh_y = []
     ex_x = []

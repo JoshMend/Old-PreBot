@@ -17,44 +17,7 @@ def parse_args(argv):
     parser.add_argument('output', help = 'output (.jpeg) file')
     args = parser.parse_args(argv[1:])
     return args.input, args.output
-
-#This creates a list for the spike times and neuron that fired it
-#ie (i,t) ith nueron and time, used if you need to actually sort through data  
-def findspikes(voltages):
-    spike_time  = []
-    spike_index = []
-
-    #What node you are at 
-    index = 1
-
-    #This shows whether you are on a current spike or not 
-    spike_on = False 
-    for v in voltages:
-
-        for i in range(0,v.size-1):
-
-            #-15 is the threshold for spiking
-            if v[i] > -15:
-
-                #gets rid of "spike" due to init cond
-                if i == 0:
-                    continue 
-			
-                #if you find a spike it sets to true so it can disregard the rest of the spike
-                elif not spike_on:
-                    spike_on = True
-                    spike_time.append(i)
-                    spike_index.append(index)
-		#if the your counted spike already do nothing
-		else:
-		    continue
-            if spike_on:
-                if v[i] < -20:
-                    spike_on = False
-                    
-        index = index +1
-        spike_on = False
-    return (spike_time,spike_index)                
+             
                         
                     
 def main(argv=None):

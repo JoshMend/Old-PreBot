@@ -67,8 +67,8 @@ def dist_prebot(n, pTypes, pI, gE, gI):
     assert isinstance(n, int),'n must be an integer'
     assert sum(pTypes) == 1, 'pTypes must add up to 1'
     assert 0 <= pI and pI <= 1
-    c =  .7
-    sigma = .1
+    c =  .9
+    sigma = .02
     graph = nx.empty_graph(n)
     graph = nx.DiGraph(graph)
     nx.set_node_attributes(graph, 'type', 
