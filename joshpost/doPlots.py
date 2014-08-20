@@ -84,6 +84,7 @@ def main(argv=None):
      data_dict = scipy.io.loadmat(inFn)
      number_of_nodes = data_dict['number_of_nodes'][0]
      timespan = data_dict['time'][0]
+     save_path = "~/Prebotc-graph-model/joshpost/outplots/"
 
      ##RASTER PLOT
      plt.figure(1)
@@ -93,7 +94,8 @@ def main(argv=None):
      plt.ylabel('Nueron #')
      plt.title('Population Raster')
      plt.axis([0,1500,0,number_of_nodes])
-     plt.savefig(outFn + '_raster')
+     completeName = os.path.join(save_path, outFn+"_raster")
+     plt.savefig(completeName)
 
      ##CONNECTION MATRIX PLOT
      plt.figure(2)
@@ -106,7 +108,8 @@ def main(argv=None):
      plt.ylabel('Nueron # (conectee)')
      plt.title('Population Connection Matrix')
      ax.legend(bbox_to_anchor = (1,.5))
-     plt.savefig(outFn + '_connectionMatrix')
+     completeName = os.path.join(save_path, outFn+"_connectionMatrix")
+     plt.savefig(completeName)
 
      ##HISTOGRAM PLOT
      plt.figure(3)
@@ -116,7 +119,8 @@ def main(argv=None):
      plt.xlabel('# of Connections')
      plt.ylabel('Percentage of Population with connection')
      plt.title('Population Histogram of Connection')
-     plt.savefig(outFn + '_histogram')
+     completeName = os.path.join(save_path, outFn+"_histogram")
+     plt.savefig(completeName)
 
      ##Convolution PLOT
      plt.figure(4)
@@ -136,7 +140,8 @@ def main(argv=None):
      plt.ylabel('Arbitrary?') ##figure out what that means
      plt.title('Convolution of Two populations')
      ax.legend(bbox_to_anchor=(1.1,1.13))
-     plt.savefig(outFn + '_convolution')
+     completeName = os.path.join(save_path, outFn+"_convolution")
+     plt.savefig(completeName)
      
      ##CROSS CORRELATION
      plt.figure(5)
@@ -150,9 +155,9 @@ def main(argv=None):
      plt.ylabel('Amplitude?') ##check this def
      plt.title('Cross Correlation vs Auto Correlation')
      ax.legend(bbox_to_anchor = (1.1,.5))
-     
      plt.text(120,1.2,'Phase lag: %.3f' %(phase_lag))
-     plt.savefig(outFn + '_crossCorrelation')
+     completeName = os.path.join(save_path, outFn+"_crossCorrelation")
+     plt.savefig(completeName)
      
     ##NORMALIZED CROSS CORRELATION
      plt.figure(6)
@@ -163,12 +168,10 @@ def main(argv=None):
      plt.ylabel('Correlation Coefficient')
      plt.title('Normalized Cross Correlation')
      plt.text(120,1,'Pop Correlation: %.3f' %(pop_corr))
-     plt.savefig(outFn + '_normalizedXCorrelation')
+     completeName = os.path.join(save_path, outFn+"_normalizedXCorrelation")
+     plt.savefig(completeName)
 
 
-
-     
-     auto_corr2 = data_dict['auto_cross_correlation2']
      
 
 if __name__ == '__main__':
