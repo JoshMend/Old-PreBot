@@ -3,6 +3,7 @@ import argparse
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import os.path
 
 def parse_args(argv):
 
@@ -84,7 +85,7 @@ def main(argv=None):
      data_dict = scipy.io.loadmat(inFn)
      number_of_nodes = data_dict['number_of_nodes'][0]
      timespan = data_dict['time'][0]
-     save_path = "~/Prebotc-graph-model/joshpost/outplots/"
+     save_path = "/home/joshua/Prebotc-graph-model/src/joshpost/outplots"
 
      ##RASTER PLOT
      plt.figure(1)
@@ -155,20 +156,17 @@ def main(argv=None):
      plt.ylabel('Amplitude?') ##check this def
      plt.title('Cross Correlation vs Auto Correlation')
      ax.legend(bbox_to_anchor = (1.1,.5))
-     plt.text(120,1.2,'Phase lag: %.3f' %(phase_lag))
-     completeName = os.path.join(save_path, outFn+"_crossCorrelation")
-     plt.savefig(completeName)
+     plt.text(130,4,'Phase lag: %.3f' %(phase_lag))
+     completeName = os.path.join(save_path, outFn+"_crossCorrelation_normalized")
+     
      
     ##NORMALIZED CROSS CORRELATION
-     plt.figure(6)
      normXCorr = data_dict['normalized_cross_correlation']
      pop_corr = data_dict['pop_correlation']
-     plt.plot(normXCorr)
-     plt.xlabel('Tao (shift in graph)')
-     plt.ylabel('Correlation Coefficient')
-     plt.title('Normalized Cross Correlation')
-     plt.text(120,1,'Pop Correlation: %.3f' %(pop_corr))
-     completeName = os.path.join(save_path, outFn+"_normalizedXCorrelation")
+     yaxis = data_dict['max_time_norm']
+     plt.plot(normXCorr,c='g',ls = '--', label = 'Normalized X Correlation')
+     plt.text(130,4.5,'Pop Correlation: %.3f' %(pop_corr))
+     ax.legend(bbox_to_anchor = (1.1,1))
      plt.savefig(completeName)
 
 

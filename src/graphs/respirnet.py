@@ -211,7 +211,7 @@ def er_prebot_bot(n, p_mat_I, p_mat_E, pTypes, pI, gE, gI):
         area2 = v['respir_area']
         if u['inh'] == 1:
             # inhibitory projection
-            p = random.random()
+            p = p_mat_I[area1, area2]
         elif u['inh'] == 0:
             # excitatory
             p = p_mat_E[ area1, area2 ]

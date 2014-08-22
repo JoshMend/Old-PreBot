@@ -6,10 +6,11 @@ import networkx as nx
 
 
 n = 40
+idegree = 3.0
 pMatE = np.array([ (2.95/(n-1), 0.05/(n-1)), 
                    (0.05/(n-1), 2.95/(n-1)) ])
-pMatI = np.array([ (1.0/(n-1), 2.0/(n-1)), 
-                   (2.0/(n-1), 1.0/(n-1)) ])
+pMatI = np.array([ (idegree/(n-1), idegree/(n-1)), 
+                   (idegree/(n-1), idegree/(n-1)) ])
 
 
 pI = .2
