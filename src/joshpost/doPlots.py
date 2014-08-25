@@ -94,8 +94,8 @@ def main(argv=None):
      plt.xlabel('Time (20ms bins)')
      plt.ylabel('Nueron #')
      plt.title('Population Raster')
-     plt.axis([0,1500,0,number_of_nodes])
-     completeName = os.path.join(save_path, outFn+"_raster")
+     plt.axis([0,timespan/20,0,number_of_nodes])
+     completeName = os.path.join(save_path, outFn+"_raster.jpeg")
      plt.savefig(completeName)
 
      ##CONNECTION MATRIX PLOT
@@ -109,7 +109,7 @@ def main(argv=None):
      plt.ylabel('Nueron # (conectee)')
      plt.title('Population Connection Matrix')
      ax.legend(bbox_to_anchor = (1,.5))
-     completeName = os.path.join(save_path, outFn+"_connectionMatrix")
+     completeName = os.path.join(save_path, outFn+"_connectionMatrix.jpeg")
      plt.savefig(completeName)
 
      ##HISTOGRAM PLOT
@@ -120,7 +120,7 @@ def main(argv=None):
      plt.xlabel('# of Connections')
      plt.ylabel('Percentage of Population with connection')
      plt.title('Population Histogram of Connection')
-     completeName = os.path.join(save_path, outFn+"_histogram")
+     completeName = os.path.join(save_path, outFn+"_histogram.jpeg")
      plt.savefig(completeName)
 
      ##Convolution PLOT
@@ -141,7 +141,7 @@ def main(argv=None):
      plt.ylabel('Arbitrary?') ##figure out what that means
      plt.title('Convolution of Two populations')
      ax.legend(bbox_to_anchor=(1.1,1.13))
-     completeName = os.path.join(save_path, outFn+"_convolution")
+     completeName = os.path.join(save_path, outFn+"_convolution.jpeg")
      plt.savefig(completeName)
      
      ##CROSS CORRELATION
@@ -156,8 +156,8 @@ def main(argv=None):
      plt.ylabel('Amplitude?') ##check this def
      plt.title('Cross Correlation vs Auto Correlation')
      ax.legend(bbox_to_anchor = (1.1,.5))
-     plt.text(130,4,'Phase lag: %.3f' %(phase_lag))
-     completeName = os.path.join(save_path, outFn+"_crossCorrelation_normalized")
+     plt.text(130,15,'Phase lag: %.3f' %(phase_lag))
+     completeName = os.path.join(save_path, outFn+"_crossCorrelation_normalized.jpeg")
      
      
     ##NORMALIZED CROSS CORRELATION
@@ -169,6 +169,17 @@ def main(argv=None):
      ax.legend(bbox_to_anchor = (1.1,1))
      plt.savefig(completeName)
 
+    ##Normalized Solo Graph
+     plt.figure(6)
+     normXCorr = data_dict['normalized_cross_correlation']
+     pop_corr = data_dict['pop_correlation']
+     yaxis = data_dict['max_time_norm']
+     plt.plot(normXCorr,c='g',ls = '--', label = 'Normalized X Correlation')
+     plt.text(130,4.5,'Pop Correlation: %.3f' %(pop_corr))
+     ax.legend(bbox_to_anchor = (1.1,1))
+     plt.text(130,.5,'Pop Correlation: %.3f' %(pop_corr))
+     completeName = os.path.join(save_path, outFn+"_popcorrelation.jpeg")
+     plt.savefig(completeName)
 
      
 

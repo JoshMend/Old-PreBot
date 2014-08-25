@@ -18,8 +18,8 @@ def parse_args(argv):
     transient = 1000 # ms
     spike_thresh = -20 # mV
     f_sigma = 20 # ms
-    butter_high = 10 # Hz
-    butter_low = 1 # Hz
+    butter_high = 4 # Hz
+    butter_low = -np.inf # Hz
     bin_width = 20 # ms
     cutoff = 0.5
     # parsing
@@ -122,9 +122,24 @@ def spikes_of_neuron(spikes, neuron):
 '''
 
 def spikes_filt(spike_mat, samp_freq, f_sigma, butter_freq):
+    '''
+    Filter the spike timeseries. Returns both neuron-by-neuron timeseries
+    filtered with a gaussian kernel and the population data filtered
+    with a butterworth filter.
 
-    
-    ##Defines a Gaussian window to use for filtering 
+    Parameters
+    ==========
+    spike_mat: the numneuron x time matrix of spikes
+    samp_freq: period (in ms) between measurements in spike_mat
+    f_sigma:   variance of gaussian
+    butter_freq: butterworth filter cutoff frequency(s)
+
+    Returns
+    =======
+    spike_fil: gaussian filtered matrix, same shape as spike_mat
+    int_signal: butterworth filtered population timeseries
+    spike_fil_butter: butterworth filtered matrix, same shape as spike_mat
+    '''
     def filt_window_gauss(samp_freq, std = 20, width = None, normalize = 1):
         if width is None:
             width = std*4+1
@@ -134,29 +149,53 @@ def spikes_filt(spike_mat, samp_freq, f_sigma, butter_freq):
         if not normalize == 0:
             w = normalize * w / sum(w)
         return w
-
-    ##Filters the spike data according to Gaussian 
     def filt_gauss(spike_mat, samp_freq, f_sigma=20):
         w = filt_window_gauss(samp_freq, std=f_sigma, normalize=1)
         spike_fil = scipy.signal.fftconvolve(spike_mat, w[ np.newaxis, : ], 
                                              mode='same')
+        #spike_fil = scipy.signal.convolve(spike_mat, w[ np.newaxis, : ], 
+        #                                  mode='same')
         return spike_fil
-
-    ##Filters the data using a butterworth filter
     def filt_butter(data, samp_freq, butter_freq, axis=-1):
-        samp_freq *= 1e-3 # ms -> s, filter defn in terms of Hz
+        '''
+        Filter data with a 2nd order butterworth filter.
+        
+        Parameters
+        ==========
+          data: ndarray
+          samp_freq: sampling period (s)
+          butter_freq: [cutoff_low, cutoff_high] (Hz), can be infinite
+          axis (optional): axis along which to filter, default = -1
+        Returns
+        =======
+          filtNs: filtered version of data
+        '''
         order = 2
         ny = 0.5 / samp_freq # Nyquist frequency
-        cof = butter_freq # cutoff freq, in Hz
-        cof1 = cof / ny
-        b, a = scipy.signal.butter(order, cof1, btype='low')
-        filtNs = scipy.signal.filtfilt(b, a, data, axis=axis)
-        filtNs /= samp_freq
+        cof = butter_freq / ny # normalized cutoff freq
+        if np.isneginf(cof[0]) and np.isfinite(cof[1]):
+            # lowpass
+            cof1 = cof[1]
+            b, a = scipy.signal.butter(order, cof1, btype='low')
+            filtNs = scipy.signal.filtfilt(b, a, data, axis=axis)
+        elif np.isfinite(cof[0]) and np.isinf(cof[1]):
+            # highpass
+            cof1 = cof[0]
+            b, a = scipy.signal.butter(order, cof1, btype='high')
+            filtNs = scipy.signal.filtfilt(b, a, data, axis=axis)
+        elif np.isfinite(cof[0]) and np.isfinite(cof[1]):
+            # bandpass
+            b, a = scipy.signal.butter(order, cof, btype='band')
+            filtNs = scipy.signal.filtfilt(b, a, data, axis=axis)
+        else:
+            raise Exception('filt_butter called with bad cutoff frequency')
+        filtNs /= samp_freq # normalize to rate
         return filtNs
     spike_fil = filt_gauss(spike_mat, samp_freq, f_sigma=f_sigma) 
     int_signal = filt_butter(np.mean(spike_mat, axis=0), 
-                             samp_freq, butter_freq)
-    spike_fil_butter = filt_butter(spike_fil, samp_freq, butter_freq, axis=1)
+                             samp_freq*1e-3, butter_freq)
+    spike_fil_butter = filt_butter(spike_fil, samp_freq*1e-3, 
+                                   butter_freq, axis=1)
     return spike_fil, int_signal, spike_fil_butter
 
 '''
@@ -238,10 +277,33 @@ def get_graphinfo(graph_fn):
     degree_histogram = nx.degree_histogram(graph)
 
     return cells_inhib, graph_edges,number_of_nodes,degree_histogram
+
+def find_max_time(peak_times,signal):
+    max_time = np.nan
+    for t in peak_times:
+        if signal[t] >0 and t > 1:
+            max_time = t
+            break
+    return max_time
+
+def find_pop_correlation(norm_corr):
+   time = np.nan;
+   pop_correlation = np.nan;
+   peak_times = scipy.signal.argrelmax(norm_corr)[0]
+   time = find_max_time(peak_times,norm_corr)
+   return norm_corr[time]
     
-
-
-
+def find_phase_lag(xcorr,autocorr):
+    max_auto = np.nan;
+    max_cross = np.nan;
+    peak_time1 = scipy.signal.argrelmax(xcorr)[0]
+    peak_time2 = scipy.signal.argrelmax(autocorr)[0]
+    max_auto = find_max_time(peak_time2,autocorr)
+    max_cross = find_max_time(peak_time1,xcorr)
+    if np.isnan(max_auto) or np.isnan(max_cross) :
+        return max_auto
+    return float(max_cross)/float(max_auto)
+    
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -302,8 +364,8 @@ def main(argv=None):
     cells_inhib,graph_edges,number_of_nodes,degree_histogram = get_graphinfo(graph_fn)
 
     ##Phase Lag and Correlation numbers
-    phase_lag = float(scipy.signal.argrelmax(cross_correlation)[0])/float(scipy.signal.argrelmax(auto_cross_correlation1)[0])
-    pop_correlation = normalized_cross_correlation[max_time]
+    phase_lag = find_phase_lag(cross_correlation,auto_cross_correlation1)
+    pop_correlation = find_pop_correlation(normalized_cross_correlation)
 
     ###########################
     #Do I need embed()        #

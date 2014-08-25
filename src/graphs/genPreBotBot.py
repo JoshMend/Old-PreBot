@@ -6,7 +6,7 @@ import networkx as nx
 
 
 n = 40
-idegree = 3.0
+idegree = 2
 pMatE = np.array([ (2.95/(n-1), 0.05/(n-1)), 
                    (0.05/(n-1), 2.95/(n-1)) ])
 pMatI = np.array([ (idegree/(n-1), idegree/(n-1)), 
@@ -20,4 +20,4 @@ pTypes = [0, 0.25, 0.45, 0.3]
 
 
 g = respirnet.er_prebot_bot(n, pMatI, pMatE, pTypes, pI, gE, gI)
-nx.write_gml(g, 'blockran.gml')
+nx.write_gml(g, 'blockran_%.2f.gml'%(idegree))
