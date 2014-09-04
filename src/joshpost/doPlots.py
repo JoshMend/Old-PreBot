@@ -8,6 +8,9 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import os.path
+import os
+import shutil
+import re
 
 def parse_args(argv):
 
@@ -90,9 +93,18 @@ def main(argv=None):
      number_of_nodes = data_dict['number_of_nodes'][0]
      timespan = data_dict['time'][0]
 
-     ##RASTER PLOT
+     ##Create Directory to store the graphs
+     if os.path.exists(outFn):
+         shutil.rmtree(outFn)
+     os.makedirs(outFn)
+
+     ##get name of file to save plots to directory 
+     split_string = re.split('/',outFn)
+     title = split_string[len(split_string)-1]
      
-     axes = plt.figure(1,figsize=(20,10)).add_subplot(111)
+     
+     ##RASTER PLOT
+     axes = plt.figure(1,figsize=(40,10)).add_subplot(111)
      spike_times,nueron_spike = arrange_raster(data_dict['spike_mat_bin'])
      plt.scatter(spike_times,nueron_spike,marker = '|')
      plt.xlabel('Time (S)')
@@ -102,7 +114,8 @@ def main(argv=None):
      a=axes.get_xticks().tolist()
      newticks = [int(x*20/1000) for x in a]
      axes.set_xticklabels(newticks)
-     plt.savefig(outFn+"_raster.jpeg")
+     complete_name = os.path.join(outFn,title+"_raster.jpeg")
+     plt.savefig(complete_name)
 
      ##CONNECTION MATRIX PLOT
      plt.figure(2)
@@ -115,7 +128,8 @@ def main(argv=None):
      plt.ylabel('Nueron # (conectee)')
      plt.title('Population Connection Matrix')
      ax.legend(bbox_to_anchor = (1,.5))
-     plt.savefig(outFn+"_connectionMatrix.jpeg")
+     complete_name = os.path.join(outFn,title+"_connectionMatrix.jpeg")
+     plt.savefig(complete_name)
 
      ##HISTOGRAM PLOT
      plt.figure(3)
@@ -125,7 +139,8 @@ def main(argv=None):
      plt.xlabel('# of Connections')
      plt.ylabel('Percentage of Population with connection')
      plt.title('Population Histogram of Connection')
-     plt.savefig(outFn+"_histogram.jpeg")
+     complete_name = os.path.join(outFn,title+"_histogram.jpeg")
+     plt.savefig(complete_name)
 
      ##Convolution PLOT
      plt.figure(4,figsize=(30,10))
@@ -145,7 +160,8 @@ def main(argv=None):
      plt.ylabel('Arbitrary?') ##figure out what that means
      plt.title('Convolution of Two populations')
      ax.legend(bbox_to_anchor=(1.1,1.13))
-     plt.savefig(outFn+"_convolution.jpeg")
+     complete_name = os.path.join(outFn,title+"_convolution.jpeg")
+     plt.savefig(complete_name)
      
      ##CROSS CORRELATION
      plt.figure(5, figsize=(15,5))
@@ -160,7 +176,7 @@ def main(argv=None):
      plt.title('Cross Correlation vs Auto Correlation')
      ax.legend(bbox_to_anchor = (1.1,.5))
      x = plt.axis()
-     plt.text(180,x[3]/3,'Phase lag: %.3f' %(phase_lag))
+     plt.text(160,x[3]/3,'Phase lag: %.3f' %(phase_lag))
      
      
     ##NORMALIZED CROSS CORRELATION
@@ -168,9 +184,10 @@ def main(argv=None):
      pop_corr = data_dict['pop_correlation']
      yaxis = data_dict['max_time_norm']
      plt.plot(normXCorr,c='g',ls = '--', label = 'Normalized X Correlation')
-     plt.text(180,0,'Pop Correlation: %.3f' %(pop_corr))
+     plt.text(160,0,'Pop Correlation: %.3f' %(pop_corr))
      ax.legend(bbox_to_anchor = (1.1,1))
-     plt.savefig(outFn+"_crossCorrelation_normalized.jpeg")
+     complete_name = os.path.join(outFn,title+"_crossCorrelation_normalized.jpeg")
+     plt.savefig(complete_name)
 
     ##Normalized Solo Graph
      plt.figure(6)
@@ -182,7 +199,8 @@ def main(argv=None):
      plt.ylabel('Coefficient of Correlation')
      plt.title('Normalized Cross Correlation')
      plt.text(130,.5,'Pop Correlation: %.3f' %(pop_corr))
-     plt.savefig(outFn+"_popcorrelation.jpeg")
+     complete_name = os.path.join(outFn,title+"_popcorrelation.jpeg")
+     plt.savefig(complete_name)
 
      
 
