@@ -34,10 +34,12 @@ def main(argv = None):
     pI = args.pI
 
 
-    pMatE = np.array([ (2.95/(n-1), 0.05/(n-1)), 
-                       (0.05/(n-1), 2.95/(n-1)) ])
-    pMatI = np.array([ (idegree/(n-1), idegree/(n-1)), 
-                       (idegree/(n-1), idegree/(n-1)) ])
+    pMatE = np.array([ (3/(n-1), 0.05/(n-1)), 
+                       (0.05/(n-1), 3/(n-1)) ])
+
+    ###Idegree normally all the same, however changing to sweep block structure 	
+    pMatI = np.array([ (idegree/(n-1), 3/(n-1)), 
+                       (3/(n-1), idegree/(n-1)) ])
 
 
     pTypes = [0, 0.25, 0.45, 0.3]
