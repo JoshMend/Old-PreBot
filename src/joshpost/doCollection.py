@@ -5,6 +5,7 @@ import scipy.io
 import argparse
 import os
 import re
+import os.path
 from operator import itemgetter
 
 '''
@@ -30,7 +31,8 @@ def collect_plpc(dir_path):
     for f in os.listdir(dir_path):
         ##Only care about mat files 
         if f.endswith('.mat'):
-            values = scipy.io.loadmat(f)
+            file_loc = os.path.join(dir_path,f)
+            values = scipy.io.loadmat(file_loc)
             phase_lag = values['phase_lag']
             pop_correlation = values['pop_correlation']
 
@@ -45,9 +47,8 @@ def collect_plpc(dir_path):
     ordered_data =  sorted(data,key=itemgetter(0))
 
     ##Change list to np.array so that it can be saved as .mat
-    return np.asarray(ordered_data)
-
-        
+    data = np.asarray(ordered_data,dtype=object)
+    return data
 
 def main(argv=None):
     if argv is None:

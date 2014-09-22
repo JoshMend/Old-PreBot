@@ -27,19 +27,19 @@ def main(argv = None):
 
     args = parser.parse_args(argv[1:])
     n = args.n
-    idegree = args.idegree
+    idegree = float(args.idegree)
     output = args.output
     gE = args.gE
     gI = args.gI
     pI = args.pI
+    
 
-
-    pMatE = np.array([ (3/(n-1), 0.05/(n-1)), 
-                       (0.05/(n-1), 3/(n-1)) ])
+    pMatE = np.array([ (3.0/(n-1), 0.05/(n-1)), 
+                       (0.05/(n-1), 3.0/(n-1)) ])
 
     ###Idegree normally all the same, however changing to sweep block structure 	
-    pMatI = np.array([ (idegree/(n-1), 3/(n-1)), 
-                       (3/(n-1), idegree/(n-1)) ])
+    pMatI = np.array([ (idegree/(n-1), (3.0-idegree)/(n-1)), 
+                       ((3.0-idegree)/(n-1), idegree/(n-1)) ])
 
 
     pTypes = [0, 0.25, 0.45, 0.3]

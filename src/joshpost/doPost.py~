@@ -15,7 +15,7 @@ eta_norm_pts = 10
 '''
 def parse_args(argv):
     # defaults
-    transient = 20000 # ms
+    transient = 5000 # ms
     spike_thresh = -20 # mV
     f_sigma = 20 # ms
     butter_high = 4 # Hz
@@ -261,14 +261,13 @@ def xcorr(signal_1,signal_2,taolen):
             #sum = sum + ((signal_1[t]-m1)*(signal_2[t+tao]-m2))
         #average = sum / (len(signal_1) - tao)
 	if tao == 0:
-		average = np.mean((signal_1 - m1)*(signal_2-m2))
+		average = np.mean((singal_1 - m1)*(signal_2-m2))
 	else:
 		average = np.mean((signal_1[0:-tao] - m1)*(signal_2[tao:] - m2))
         xcorrl[index] = average
         index = index + 1
 
     return xcorrl
-   
 
 '''
     Gets info from the graph to be used for plotting
