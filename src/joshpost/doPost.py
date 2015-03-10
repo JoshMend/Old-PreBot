@@ -6,6 +6,7 @@ import scipy.signal
 import scipy.io
 import argparse
 import networkx as nx
+import matplotlib.pyplot as plt
 
 maxorder=20
 eta_norm_pts = 10
@@ -15,7 +16,7 @@ eta_norm_pts = 10
 '''
 def parse_args(argv):
     # defaults
-    transient = 20000 # ms
+    transient = 40000 # ms
     spike_thresh = -20 # mV
     f_sigma = 20 # ms
     butter_high = 4 # Hz
@@ -253,20 +254,16 @@ def xcorr(signal_1,signal_2,taolen):
     ## m1,m2 are the means of signals 1 and 2, respectivly
     m1 = np.mean(signal_1)
     m2 = np.mean(signal_2)
-    
+    print len(signal_1)
     #loops through all values of tao 
     for tao in range(0,(len(signal_1)/taolen)):
         sum = 0
-        #for t in range(0,(len(signal_1) - tao)):
-            #sum = sum + ((signal_1[t]-m1)*(signal_2[t+tao]-m2))
-        #average = sum / (len(signal_1) - tao)
-	if tao == 0:
-		average = np.mean((signal_1 - m1)*(signal_2-m2))
-	else:
-		average = np.mean((signal_1[0:-tao] - m1)*(signal_2[tao:] - m2))
+        if tao == 0:
+            average = np.mean((signal_1 - m1)*(signal_2-m2))
+        else:
+            average = np.mean((signal_1[0:-tao] - m1)*(signal_2[tao:] - m2))
         xcorrl[index] = average
         index = index + 1
-
     return xcorrl
    
 
@@ -283,22 +280,23 @@ def get_graphinfo(graph_fn):
     degree_histogram = nx.degree_histogram(graph)
     return cells_inhib, graph_edges,number_of_nodes,degree_histogram
 
-def find_max_time(peak_times,signal,end_time):
-    max_time = 20
-    for t in peak_times:
-        if signal[t] >= signal[max_time] and t < end_time and t > 20:
-            max_time = t
-    #if  signal[end_time] > signal[max_time]:
-       # max_time = end_time
-    return max_time
 
-def find_auto_max_time(peak_times,auto_corr):
+'''
+    This method gets the time at which the peak occurs for a signal
+    goes through the given peak_times and finds at which point the signal is the
+    strongest
+
+    peak_times: the times at which a peak in the signal occurs
+    signal: The signal that you want to find the max of
+'''
+def find_max_time(peak_times,signal):
     max_time = np.nan
     for t in peak_times:
-        if auto_corr[t] > 0 and t > 1:
+        if np.isnan(max_time):
             max_time = t
-    return max_time 
-
+        elif signal[t] > signal[max_time]:
+            max_time = t
+    return max_time
 
 
 def find_pop_correlation(norm_corr,time):
@@ -312,13 +310,18 @@ def find_pop_correlation(norm_corr,time):
 def find_phase_lag(xcorr,autocorr):
     max_auto = np.nan;
     max_cross = np.nan;
-    peak_time1 = scipy.signal.argrelmax(xcorr)[0]
-    peak_time2 = scipy.signal.argrelmax(autocorr)[0]
-    max_auto = find_auto_max_time(peak_time2,autocorr)
-    max_cross = find_max_time(peak_time1,xcorr,max_auto)
-    if np.isnan(max_auto) or np.isnan(max_cross) :
-        return np.nan
-    return float(max_cross)/float(max_auto),max_cross
+    peak_time1 = scipy.signal.argrelmax(xcorr)
+    peak_time2 = scipy.signal.argrelmax(autocorr)
+##    max_auto = find_max_time(peak_time2,autocorr)
+##    max_cross = find_max_time(peak_time1,xcorr)
+    max_cross = peak_time1[0][0]
+    max_auto  = peak_time2[0][0]
+    print max_cross
+    print max_auto
+    if np.isnan(max_auto) or np.isnan(max_cross):
+       return np.nan
+    return float(max_cross)/float(max_auto),max_cross      
+    
 
 def main(argv=None):
     if argv is None:
@@ -335,7 +338,7 @@ def main(argv=None):
     ## assumes no --save_full
     sim_output = scipy.io.loadmat(simFn)
     
-    ## begin postprocessing    ##How do I get this graph?
+    ## begin postprocessing    
     graph_fn = str(sim_output['graphFn'][0])
     dt = float(sim_output['dt']) * scalet
     data = chop_transient(sim_output['Y'], trans, dt)
@@ -346,20 +349,33 @@ def main(argv=None):
     if are_volts:
         spikes, spike_mat = find_spikes(data, spike_thresh)
     else:
-        spike_mat = data.todense()
+        data = scipy.sparse.csc.csc_matrix(data)
+        spike_mat= data.todense()
         spikes = data.nonzero()
     bins, spike_mat_bin = bin_spikes(spike_mat, bin_width, dt)
     
     ## filtering
     # spike_fil, butter_int = spikes_filt(spike_mat, dt, f_sigma, butter_freq)
-    spike_fil_bin, butter_int_bin, spike_fil_butter = spikes_filt(spike_mat_bin[0:41], 
+    spike_fil_bin, butter_int_bin, spike_fil_butter = spikes_filt(spike_mat_bin[:num_neurons/2], 
                                                                   dt*bin_width, 
                                                                   f_sigma, 
                                                                   butter_freq)
-    spike_fil_bin2, butter_int_bin2, spike_fil_butter2 = spikes_filt(spike_mat_bin[41:], 
+    spike_fil_bin2, butter_int_bin2, spike_fil_butter2 = spikes_filt(spike_mat_bin[num_neurons/2:], 
                                                                   dt*bin_width, 
                                                                   f_sigma, 
                                                                   butter_freq)
+
+
+      #####This code is way to slow when running my data. How does this difffer from what I do, which is fast?   
+
+##    s1 = spike_mat_bin[:num_neurons/2] - np.mean(spike_mat_bin[:num_neurons/2])
+##    s2 = spike_mat_bin[num_neurons/2:] - np.mean(spike_mat_bin[num_neurons/2:])
+##    s1 = np.random.rand(1,20)
+##    s2 = np.random.rand(1,20)
+##    x = scipy.signal.correlate(s1,s2)
+##    plt.plot(x)
+##    plt.show()
+    
     
     ##peak time for the maxima for the convolution 
     pop_burst_peak_pop1 = scipy.signal.argrelmax(butter_int_bin, order=maxorder)[0]
@@ -367,12 +383,21 @@ def main(argv=None):
 
     
     ##Cross covarience and auto covariance
-    total_time = sim_output['tf']/20
-    tao_steps = total_time/200
+    total_time = sim_output['tf']/bin_width
+    print str((sim_output['tf']-40000)/bin_width) + ":t"
+
+    ##How do I calculate TaoSteps
+    '''
+        If I leave tao steps = 1 and not total_time/c c: was 500. This will mess up the phase lag method since we see an increase and decrease in the height
+        of the signal over the whole time. After I run the simmulations on hyak with varrying parameters I can see how it acts and how the activity in the time region
+        changes and then I can write a more general phase-lag with whole thing instead of just a guessed piece
+    '''
+    tao_steps = total_time/250
     taolen = int(np.ceil(tao_steps))
-    cross_correlation = xcorr(butter_int_bin,butter_int_bin2,taolen)
+    cross_correlation = xcorr(butter_int_bin2,butter_int_bin,taolen)
     auto_cross_correlation1 = xcorr(butter_int_bin,butter_int_bin,taolen)
     auto_cross_correlation2 = xcorr(butter_int_bin2,butter_int_bin2,taolen)
+
 
     ##Cross correlation
     normalized_cross_correlation = cross_correlation/np.sqrt(auto_cross_correlation1[0]*auto_cross_correlation2[0])
@@ -409,7 +434,8 @@ def main(argv=None):
                               'degree_histogram':degree_histogram,
                               'phase_lag': phase_lag,
                               'pop_correlation': pop_correlation,
-                              'time': sim_output['tf']
+                              'time': sim_output['tf'],
+                              'bin_width': bin_width
                               
                              },
                      oned_as ='column'

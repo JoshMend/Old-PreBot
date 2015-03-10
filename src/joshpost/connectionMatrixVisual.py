@@ -3,6 +3,7 @@ import numpy as np
 import scipy.io
 import sys
 import argparse
+import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx 
 
@@ -53,7 +54,8 @@ def main(argv=None):
                 ex_x.append(u)
                 ex_y.append(v)
 
-         
+
+            
     plt.scatter(ex_x,ex_y)
     plt.scatter(inh_x, inh_y, c = 'r')
     x = nx.number_of_nodes(graph)

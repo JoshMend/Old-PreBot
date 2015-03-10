@@ -235,11 +235,11 @@ def main(argv = None):
     bins, spike_mat_bin = bin_spikes(spike_mat, bin_width, dt)
     ## filtering
     # spike_fil, butter_int = spikes_filt(spike_mat, dt, f_sigma, butter_freq)
-    spike_fil_bin, butter_int_bin, spike_fil_butter = spikes_filt(spike_mat_bin[0:41], 
+    spike_fil_bin, butter_int_bin, spike_fil_butter = spikes_filt(spike_mat_bin[0:299], 
                                                                   dt*bin_width, 
                                                                   f_sigma, 
                                                                   butter_freq)
-    spike_fil_bin2, butter_int_bin2, spike_fil_butter2 = spikes_filt(spike_mat_bin[41:], 
+    spike_fil_bin2, butter_int_bin2, spike_fil_butter2 = spikes_filt(spike_mat_bin[300:], 
                                                                   dt*bin_width, 
                                                                   f_sigma, 
                                                                   butter_freq)

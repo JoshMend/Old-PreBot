@@ -20,6 +20,7 @@ def parse_args(argv):
                                      description = 'plotting of processed data')
     parser.add_argument('input', help = 'file contaning processed data (.mat)')
     parser.add_argument('output', help='output filename .jpeg(graph type will be appended)')
+##    parser.add_argument('--specific_plots',help='array of certain output files to be plotted')
     
     args = parser.parse_args(argv[1:])
     return args.input, args.output
@@ -92,7 +93,17 @@ def main(argv=None):
      data_dict = scipy.io.loadmat(inFn)
      number_of_nodes = data_dict['number_of_nodes'][0]
      timespan = data_dict['time'][0]
+     bin_width = data_dict['bin_width'][0][0]
+     
 
+##     exit_flag = True 
+##     for names in specific:
+##         if names in inFn:
+##             exit_flag = False
+##
+##     if exit_flag:
+##        return 
+     
      ##Create Directory to store the graphs
      if os.path.exists(outFn):
          shutil.rmtree(outFn)
@@ -110,9 +121,9 @@ def main(argv=None):
      plt.xlabel('Time (S)')
      plt.ylabel('Nueron #')
      plt.title('Population Raster')
-     plt.axis([0,timespan/20,0,number_of_nodes])
+     plt.axis([0,timespan/bin_width,0,number_of_nodes])
      a=axes.get_xticks().tolist()
-     newticks = [int(x*20/1000) for x in a]
+     newticks = [int(x*bin_width/1000) for x in a]
      axes.set_xticklabels(newticks)
      complete_name = os.path.join(outFn,title+"_raster.jpeg")
      plt.savefig(complete_name)
@@ -162,9 +173,34 @@ def main(argv=None):
      ax.legend(bbox_to_anchor=(1.1,1.13))
      complete_name = os.path.join(outFn,title+"_convolution.jpeg")
      plt.savefig(complete_name)
-     
+
+     ##########################################################################
+     #This CODE is for plotting for conference purposes delete when done with#
+     #Change fig numbers after dict                                        #
+     #########################################################################
+     plt.figure(5,figsize=(30,10))
+     pop_peak1 = data_dict['pop_burst_peak_pop1']
+     pop_peak2 = data_dict['pop_burst_peak_pop2']
+     butter1 = data_dict['butter_int_bin']
+     butter2 = data_dict['butter_int_bin2']
+     bins = data_dict['bins']
+     peak_point1, peak_point2,yaxis = arrange_xcorr_peaks(pop_peak1,pop_peak2,butter1,butter2)
+     plt.plot(bins/1000.,butter1,c='r')
+     plt.plot(bins/1000.,butter2)
+     #plt.scatter(bins[pop_peak1]/1000.,peak_point1,marker = 'o',c = 'k', facecolors = 'none', linewidth='2')
+     #plt.scatter(bins[pop_peak2]/1000.,peak_point2,marker = 'o',c = 'k', facecolors = 'none',linewidth='2')
+     plt.axis([0,20,-.5,yaxis])
+     #plt.xlabel('Time (S)')
+     #plt.ylabel('Arbitrary?') ##figure out what that means
+     #plt.title('Convolution of Two populations')
+     #ax.legend(bbox_to_anchor=(1.1,1.13))
+     complete_name = os.path.join(outFn,title+"_conferenceconvo.jpeg")
+     plt.savefig(complete_name)   
+
+
+     #########################################################################
      ##CROSS CORRELATION
-     plt.figure(5, figsize=(15,5))
+     plt.figure(6, figsize=(15,5))
      ax  = plt.subplot(111)
      xcorr = data_dict['cross_correlation']
      autocorr1 = data_dict['auto_cross_correlation1']
@@ -190,15 +226,16 @@ def main(argv=None):
      plt.savefig(complete_name)
 
     ##Normalized Solo Graph
-     plt.figure(6)
+     plt.figure(7)
      normXCorr = data_dict['normalized_cross_correlation']
      pop_corr = data_dict['pop_correlation']
      yaxis = data_dict['max_time_norm']
-     plt.plot(normXCorr,c='g',ls = '--', label = 'Normalized X Correlation')
-     plt.xlabel('Tao (Shift in graph)')
-     plt.ylabel('Coefficient of Correlation')
-     plt.title('Normalized Cross Correlation')
-     plt.text(130,.5,'Pop Correlation: %.3f' %(pop_corr))
+     plt.plot(normXCorr,ls = '--', label = 'Normalized X Correlation')
+##     plt.xlabel('Tao (Shift in graph)')
+##     plt.ylabel('Coefficient of Correlation')
+##     plt.title('Normalized Cross Correlation')
+##     plt.text(130,.5,'Pop Correlation: %.3f' %(pop_corr))
+     plt.axis([-.5,150,-.5,1])
      complete_name = os.path.join(outFn,title+"_popcorrelation.jpeg")
      plt.savefig(complete_name)
 

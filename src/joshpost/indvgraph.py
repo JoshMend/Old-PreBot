@@ -17,15 +17,25 @@ def parse_args(argv):
     args = parser.parse_args(argv[1:])
     return args.input, args.output
 
+def chop_transient(data, transient, dt):
+    firstIdx = int(np.ceil(transient / dt) - 1)
+    return data[:,firstIdx:]
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
     (inFn, outFn) = parse_args(argv)
     mat_contents = scipy.io.loadmat(inFn)
     voltages = mat_contents['Y']
-    time = np.arange(voltages[1].size)
+    choppedata = chop_transient(voltages,2000,1)
+    time = np.arange(choppedata[1].size)
+    print(len(choppedata[0]))
+    print(len(choppedata[1]))
+    print(len(choppedata[2]))
+    print(len(choppedata[3]))
+    print(len(time))
     index = 1
-    for v in voltages:
+    for v in choppedata:
         plt.plot(time,v)
         #plt.axis([0,30000,-50,20])
         plt.savefig(outFn + str(index) + ".png")
